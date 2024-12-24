@@ -1,7 +1,7 @@
-import { Component } from 'react';
-import './randomChar.scss';
-import MervelService from '../../services/MervelService';
-import mjolnir from '../../resources/img/mjolnir.png';
+import { Component } from "react";
+import "./randomChar.scss";
+import MervelService from "../../services/MervelService";
+import mjolnir from "../../resources/img/mjolnir.png";
 
 class RandomChar extends Component {
     constructor(props) {
@@ -10,38 +10,46 @@ class RandomChar extends Component {
     }
 
     state = {
-        name: null,
-        description: null,
-        thumbnail: null,
-        homepage: null,
-        wiki: null,
+        char: {},
     };
 
     marvelService = new MervelService();
 
+    onCharLoaded = (char) => {
+        this.setState({ char });
+    };
+
     updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        this.marvelService.getCharacter(id).then((res) => {
-            this.setState({
-                name: res.data.results[0].name,
-                description: res.data.results[0].description,
-                thumbnail: res.data.results[0].thumbnail.path + '.' + res.data.results[0].thumbnail.extension,
-                homepage: res.data.results[0].urls[0].url,
-                wiki: res.data.results[0].urls[1].url,
-            });
-        });
+        this.marvelService.getCharacter(id).then(this.onCharLoaded);
     };
 
     render() {
-        const { name, description, thumbnail, homepage, wiki } = this.state;
+        const {
+            char: { name, description, thumbnail, homepage, wiki },
+        } = this.state;
+
+        const maxDescriptionLength = 210;
+        const cuttedDescription =
+            description && description.length > maxDescriptionLength
+                ? description.substring(0, maxDescriptionLength) + "..."
+                : description;
 
         return (
             <div className="randomchar">
                 <div className="randomchar__block">
-                    <img src={thumbnail} alt="Random character" className="randomchar__img" />
+                    <img
+                        src={thumbnail}
+                        alt="Random character"
+                        className="randomchar__img"
+                    />
                     <div className="randomchar__info">
                         <p className="randomchar__name">{name}</p>
-                        <p className="randomchar__descr">{description}</p>
+                        <p className="randomchar__descr">
+                            {" "}
+                            {cuttedDescription ||
+                                "There is no description for this character."}
+                        </p>
                         <div className="randomchar__btns">
                             <a href={homepage} className="button button__main">
                                 <div className="inner">homepage</div>
@@ -62,7 +70,11 @@ class RandomChar extends Component {
                     <button className="button button__main">
                         <div className="inner">try it</div>
                     </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
+                    <img
+                        src={mjolnir}
+                        alt="mjolnir"
+                        className="randomchar__decoration"
+                    />
                 </div>
             </div>
         );
