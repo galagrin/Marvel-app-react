@@ -6,11 +6,6 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import "./randomChar.scss";
 
 class RandomChar extends Component {
-    constructor(props) {
-        super(props);
-        this.updateChar();
-    }
-
     state = {
         char: {},
         loading: true,
@@ -19,6 +14,10 @@ class RandomChar extends Component {
 
     marvelService = new MervelService();
 
+    componentDidMount() {
+        this.updateChar();
+    }
+
     onCharLoaded = (char) => {
         this.setState({
             char,
@@ -26,6 +25,11 @@ class RandomChar extends Component {
         });
     };
 
+    onCharLoading = () => {
+        this.setState({
+            loading: true,
+        });
+    };
     onError = () => {
         this.setState({
             loading: false,
@@ -35,6 +39,7 @@ class RandomChar extends Component {
 
     updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
+        this.onCharLoading();
         this.marvelService
             .getCharacter(id)
             .then(this.onCharLoaded)
@@ -59,7 +64,10 @@ class RandomChar extends Component {
                         Do you want to get to know him better?
                     </p>
                     <p className="randomchar__title">Or choose another one</p>
-                    <button className="button button__main">
+                    <button
+                        className="button button__main"
+                        onClick={this.updateChar}
+                    >
                         <div className="inner">try it</div>
                     </button>
                     <img
@@ -80,13 +88,20 @@ const View = ({ char }) => {
         description && description.length > maxDescriptionLength
             ? description.substring(0, maxDescriptionLength) + "..."
             : description;
-
+    let imgStyle = { objectFit: "cover" };
+    if (
+        thumbnail ===
+        "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+    ) {
+        imgStyle = { objectFit: "contain" };
+    }
     return (
         <div className="randomchar__block">
             <img
                 src={thumbnail}
                 alt="Random character"
                 className="randomchar__img"
+                style={imgStyle}
             />
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
